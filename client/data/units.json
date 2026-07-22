@@ -1,0 +1,10 @@
+{
+  "soldiers": [
+    { "id": "shield_guard", "name": "刀盾兵", "role": "近战阻挡", "health": 420, "attack": 32, "defense": 18, "block": 3, "range": 1.4, "cost": 80 },
+    { "id": "archer", "name": "弓手", "role": "远程输出", "health": 180, "attack": 42, "defense": 4, "block": 0, "range": 7.5, "cost": 100 },
+    { "id": "spearman", "name": "长枪兵", "role": "长柄反制", "health": 300, "attack": 48, "defense": 10, "block": 2, "range": 2.2, "cost": 110 }
+  ],
+  "heroes": [
+    { "id": "defense_general", "name": "守城将领", "role": "武将", "health": 900, "attack": 85, "defense": 25, "block": 3, "range": 2.0, "cost": 180, "skill": "鼓舞" }
+  ]
+}

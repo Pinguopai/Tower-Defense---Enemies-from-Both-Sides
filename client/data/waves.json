@@ -1,0 +1,13 @@
+{
+  "stageId": "main_city_defense",
+  "waves": [
+    { "index": 1, "enemyId": "light_infantry", "count": 10, "interval": 1.5, "entrance": "west", "route": "main" },
+    { "index": 2, "enemyId": "light_infantry", "count": 18, "interval": 1.2, "entrance": "west", "route": "main" },
+    { "index": 3, "enemyId": "scout_rider", "count": 8, "interval": 1.0, "entrance": "west", "route": "main" },
+    { "index": 4, "enemyId": "light_infantry", "count": 14, "interval": 1.1, "entrance": "northwest", "route": "branch" },
+    { "index": 5, "enemyId": "heavy_armor", "count": 6, "interval": 2.0, "entrance": "west", "route": "main" },
+    { "index": 6, "enemyId": "scout_rider", "count": 12, "interval": 0.9, "entrance": "northwest", "route": "branch" },
+    { "index": 7, "enemyId": "light_infantry", "count": 20, "interval": 1.0, "entrance": "west", "route": "main" },
+    { "index": 8, "enemyId": "elite_leader", "count": 1, "interval": 1.0, "entrance": "west", "route": "main" }
+  ]
+}
