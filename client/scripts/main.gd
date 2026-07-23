@@ -41,12 +41,22 @@ var spawn_wait := 0.0
 var income_wait := 0.0
 var camera_angle := 0.0
 var camera_distance := 20.0
+var story_panel: PanelContainer
+var story_label: Label
+var story_next_button: Button
+var story_page := 0
+var story_pages := [
+	"崇祯十七年，春。\n\n大明的诏令仍从北京发往天下，可许多驿路已经没有回音。\n\n西面，大顺军越过山西诸关；东北，清军压在山海关外。",
+	"紫禁城中，朱由检仍是天下名义上的皇帝。\n\n只是他的命令，常常找不到粮、找不到兵，也找不到愿意承担后果的人。",
+	"【昌平粮台急报】\n\n宁武方向烽火已绝。库中尚有京师急需的粮秣与箭药，守军不足，请示焚仓撤退。",
+	"你的手指触及山河图。散落的兵牌重新排列，封死的军械库自行开启。\n\n奇观没有创造士兵。它只是让来不及集结的人，赶在城门关闭前站到了自己的位置上。"
+]
 
 func _ready() -> void:
 	_build_world()
 	_build_hud()
 	_update_status()
-	_show_message("选择兵种，再点击蓝色部署台。准备好后点击“开始第 1 波”。")
+	_show_story()
 
 func _process(delta: float) -> void:
 	if Input.is_action_pressed("camera_rotate_left"):
@@ -56,6 +66,8 @@ func _process(delta: float) -> void:
 		camera_angle -= delta
 		_update_camera()
 	if game_finished:
+		return
+	if story_panel and story_panel.visible:
 		return
 	_income_tick(delta)
 	_spawn_tick(delta)
@@ -123,7 +135,7 @@ func _build_hud() -> void:
 	top_box.add_theme_constant_override("separation", 24)
 	top_panel.add_child(top_box)
 	var title := Label.new()
-	title.text = "  城郊阻击 · 第一关"
+	title.text = "  昌平粮台 · 第一关"
 	title.add_theme_font_size_override("font_size", 24)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_box.add_child(title)
@@ -164,14 +176,16 @@ func _build_hud() -> void:
 	hud.add_child(message_label)
 	result_panel = PanelContainer.new()
 	result_panel.set_anchors_preset(Control.PRESET_CENTER)
-	result_panel.position = Vector2(-230, -130)
-	result_panel.size = Vector2(460, 260)
+	result_panel.position = Vector2(-300, -190)
+	result_panel.size = Vector2(600, 380)
 	result_panel.visible = false
 	hud.add_child(result_panel)
 	var result_box := VBoxContainer.new()
 	result_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	result_panel.add_child(result_box)
 	result_label = Label.new()
+	result_label.custom_minimum_size = Vector2(540, 270)
+	result_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result_label.add_theme_font_size_override("font_size", 28)
 	result_box.add_child(result_label)
@@ -180,6 +194,49 @@ func _build_hud() -> void:
 	restart.custom_minimum_size = Vector2(180, 52)
 	restart.pressed.connect(get_tree().reload_current_scene)
 	result_box.add_child(restart)
+	_build_story_panel()
+
+# 创建序章剧情面板，用于交代朱由检和京畿战局。
+func _build_story_panel() -> void:
+	story_panel = PanelContainer.new()
+	story_panel.set_anchors_preset(Control.PRESET_CENTER)
+	story_panel.position = Vector2(-340, -205)
+	story_panel.size = Vector2(680, 410)
+	hud.add_child(story_panel)
+	var story_box := VBoxContainer.new()
+	story_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	story_box.add_theme_constant_override("separation", 24)
+	story_panel.add_child(story_box)
+	var story_title := Label.new()
+	story_title.text = "序章 · 山河将熄"
+	story_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	story_title.add_theme_font_size_override("font_size", 30)
+	story_box.add_child(story_title)
+	story_label = Label.new()
+	story_label.custom_minimum_size = Vector2(600, 230)
+	story_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	story_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	story_label.add_theme_font_size_override("font_size", 21)
+	story_box.add_child(story_label)
+	story_next_button = Button.new()
+	story_next_button.text = "继续"
+	story_next_button.custom_minimum_size = Vector2(180, 52)
+	story_next_button.pressed.connect(_advance_story)
+	story_box.add_child(story_next_button)
+
+# 显示当前序章页，并在末页提示玩家进入战斗。
+func _show_story() -> void:
+	story_label.text = story_pages[story_page]
+	story_next_button.text = "进入战斗" if story_page == story_pages.size() - 1 else "继续"
+
+# 推进序章；阅读结束后关闭面板并恢复部署引导。
+func _advance_story() -> void:
+	story_page += 1
+	if story_page >= story_pages.size():
+		story_panel.visible = false
+		_show_message("保住粮台，让粮秣与军报送入北京。选择兵种并点击蓝色部署台。")
+		return
+	_show_story()
 
 func _add_deployment_spots() -> void:
 	var positions := [Vector3(-8, 0.15, -3.0), Vector3(-5, 0.15, 3.3), Vector3(-1, 0.15, -0.9), Vector3(2.5, 0.15, 5.1), Vector3(4.5, 0.15, -2.9), Vector3(7.2, 0.15, 3.0)]
@@ -359,7 +416,7 @@ func _finish_game(victory: bool) -> void:
 	next_wave_button.disabled = true
 	result_panel.visible = true
 	if victory:
-		result_label.text = "守城成功\n\n城池耐久 %d%%\n剩余军资 %d\n战果奖励 %d" % [city_health, supplies, 300 + city_health * 2]
+		result_label.text = "昌平粮台守住了\n\n捷报正在送往北京\n山河图边缘却浮现出不属于此世的城影\n\n此处已暂时稳定——请选择下一个世界\n\n城防 %d%% · 剩余军资 %d · 战果 %d" % [city_health, supplies, 300 + city_health * 2]
 	else:
 		result_label.text = "城池失守\n\n防线已被突破\n调整兵种位置后再战"
 
